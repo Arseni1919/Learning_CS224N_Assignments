@@ -3,4 +3,10 @@ name = "learning-cs224n-assignments"
 version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "datasets>=4.0.0",
+    "gensim>=4.3.3",
+    "matplotlib>=3.10.6",
+    "notebook>=7.4.5",
+    "scikit-learn>=1.7.1",
+]

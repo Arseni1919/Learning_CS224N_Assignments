@@ -2,10 +2,13 @@
 
 ## CS224N 2024 Spring
 
-- [ ] Assignment 1
+- [x] Assignment 1
 - [ ] Assignment 2
 - [ ] Assignment 3
+  - [https://www.overleaf.com/project/6620f0d751ce90b48ea24495](https://www.overleaf.com/project/6620f0d751ce90b48ea24495)
 - [ ] Assignment 4
+  - [https://www.overleaf.com/project/66313549f0ec9705fc4acd80](https://www.overleaf.com/project/66313549f0ec9705fc4acd80)
+  - [https://colab.research.google.com/drive/193j033YPWyzooOK_C4tSBpnaguoewN7X?usp=sharing](https://colab.research.google.com/drive/193j033YPWyzooOK_C4tSBpnaguoewN7X?usp=sharing)
 
 ## CS224N 2025 Winter
 
