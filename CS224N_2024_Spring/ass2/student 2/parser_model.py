@@ -73,6 +73,15 @@ class ParserModel(nn.Module):
         ### 
         ### See the PDF for hints.
 
+        self.embed_to_hidden_weight = nn.Parameter(torch.randn(self.n_features, self.hidden_size))  # nn.init.xavier_uniform_
+        self.embed_to_hidden_bias = nn.Parameter(torch.randn(self.hidden_size))  # nn.init.uniform_
+        nn.init.xavier_uniform_(self.embed_to_hidden_weight)
+        nn.init.uniform_(self.embed_to_hidden_bias)
+        self.dropout = nn.Dropout(p=dropout_prob)
+        self.hidden_to_logits_weight = nn.Parameter(torch.randn(self.hidden_size, self.n_classes))  # nn.init.xavier_uniform_
+        self.hidden_to_logits_bias = nn.Parameter(torch.randn(self.n_classes))  # nn.init.uniform_
+        nn.init.xavier_uniform_(self.hidden_to_logits_weight)
+        nn.init.uniform_(self.hidden_to_logits_bias)
 
 
 

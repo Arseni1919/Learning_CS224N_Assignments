@@ -32,7 +32,9 @@ class PartialParse(object):
         ### Note: The root token should be represented with the string "ROOT"
         ### Note: If you need to use the sentence object to initialize anything, make sure to not directly 
         ###       reference the sentence object.  That is, remember to NOT modify the sentence object. 
-
+        self.stack = ['ROOT']
+        self.buffer = sentence.copy()
+        self.dependencies = []
 
         ### END YOUR CODE
 
@@ -51,6 +53,23 @@ class PartialParse(object):
         ###         1. Shift
         ###         2. Left Arc
         ###         3. Right Arc
+        if transition == 'S':
+            first_word = self.buffer[0]
+            self.buffer = self.buffer[1:]
+            self.stack.append(first_word)
+        elif transition == 'LA':
+            first_rec_added_item = self.stack[-1]  # head
+            second_rec_added_item = self.stack[-2]  # dependent
+            # (head, dependent)
+            self.dependencies += (first_rec_added_item, second_rec_added_item),
+            self.stack.remove(second_rec_added_item)
+        elif transition == 'RA':
+            first_rec_added_item = self.stack[-1]  # dependent
+            second_rec_added_item = self.stack[-2]  # head
+            self.dependencies += (second_rec_added_item, first_rec_added_item),
+            self.stack.remove(first_rec_added_item)
+        else:
+            raise RuntimeError('no no')
 
 
         ### END YOUR CODE
@@ -103,6 +122,21 @@ def minibatch_parse(sentences, model, batch_size):
     ###             to remove objects from the `unfinished_parses` list. This will free the underlying memory that
     ###             is being accessed by `partial_parses` and may cause your code to crash.
 
+    partial_parses = [PartialParse(sentence) for sentence in sentences]
+    unfinished_parses = partial_parses[:]
+    while len(unfinished_parses) != 0:
+        minibatch = unfinished_parses[:batch_size]
+        transitions = model.predict(minibatch)
+        for item, transition in zip(minibatch, transitions):
+            item.parse_step(transition)
+
+        unfinished_parses = []
+        for partial_parse in partial_parses:
+            if len(partial_parse.buffer) == 0 and len(partial_parse.stack) == 1:
+                continue
+            unfinished_parses.append(partial_parse)
+
+    dependencies = [partial_parse.dependencies for partial_parse in partial_parses]
 
     ### END YOUR CODE
 
@@ -222,13 +256,17 @@ def test_minibatch_parse():
 
 
 if __name__ == '__main__':
-    args = sys.argv
-    if len(args) != 2:
-        raise Exception("You did not provide a valid keyword. Either provide 'part_c' or 'part_d', when executing this script")
-    elif args[1] == "part_c":
+    # args = sys.argv
+    # part = 'part_c'
+    part = 'part_d'
+    # if len(args) != 2:
+    #     raise Exception("You did not provide a valid keyword. Either provide 'part_c' or 'part_d', when executing this script")
+    # elif args[1] == "part_c":
+    if part == "part_c":
         test_parse_step()
         test_parse()
-    elif args[1] == "part_d":
+    # elif args[1] == "part_d":
+    elif part == "part_d":
         test_minibatch_parse()
     else:
         raise Exception("You did not provide a valid keyword. Either provide 'part_c' or 'part_d', when executing this script")
