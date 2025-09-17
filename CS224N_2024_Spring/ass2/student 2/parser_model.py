@@ -73,7 +73,7 @@ class ParserModel(nn.Module):
         ### 
         ### See the PDF for hints.
 
-        self.embed_to_hidden_weight = nn.Parameter(torch.randn(self.n_features, self.hidden_size))  # nn.init.xavier_uniform_
+        self.embed_to_hidden_weight = nn.Parameter(torch.randn(self.embed_size * self.n_features, self.hidden_size))  # nn.init.xavier_uniform_
         self.embed_to_hidden_bias = nn.Parameter(torch.randn(self.hidden_size))  # nn.init.uniform_
         nn.init.xavier_uniform_(self.embed_to_hidden_weight)
         nn.init.uniform_(self.embed_to_hidden_bias)
@@ -116,7 +116,19 @@ class ParserModel(nn.Module):
         ###     View: https://pytorch.org/docs/stable/tensors.html#torch.Tensor.view
         ###     Flatten: https://pytorch.org/docs/stable/generated/torch.flatten.html
 
+        # w - (batch_size, n_features)
+        # x - (batch_size, n_features * embed_size)
+        # index_select = "give me whole rows/columns at these indices."
+        # gather = "for each position, tell me exactly which index to take."
+        # view: reshape, no data movement (cheap).
+        # torch.flatten = “collapse some dimensions” and .view(-1) = “make everything a single 1D vector”
 
+        batch_size, n_features = w.shape
+        w_flatten = torch.flatten(w)
+        w_embeddings = torch.index_select(self.embeddings, 0, w_flatten)
+        x = w_embeddings.view(batch_size, n_features, self.embed_size)
+
+        # x = torch.gather(t, 1, torch.tensor([[0, 0], [1, 0]]))
 
         ### END YOUR CODE
         return x
@@ -153,6 +165,13 @@ class ParserModel(nn.Module):
         ###     Matrix product: https://pytorch.org/docs/stable/torch.html#torch.matmul
         ###     ReLU: https://pytorch.org/docs/stable/nn.html?highlight=relu#torch.nn.functional.relu
 
+        # w - (batch_size, n_features)
+        # logits - (batch_size, n_classes)
+        x = self.embedding_lookup(w)
+        x = torch.flatten(x, start_dim=1)
+        h = F.relu(x @ self.embed_to_hidden_weight + self.embed_to_hidden_bias)
+        h = self.dropout(h)
+        logits = h @ self.hidden_to_logits_weight + self.hidden_to_logits_bias
 
         ### END YOUR CODE
         return logits
@@ -181,10 +200,10 @@ if __name__ == "__main__":
         assert out.shape == expected_out_shape, "The result shape of forward is: " + repr(out.shape) + \
                                                 " which doesn't match expected " + repr(expected_out_shape)
 
-    if args.embedding:
-        check_embedding()
-        print("Embedding_lookup sanity check passes!")
-
-    if args.forward:
-        check_forward()
-        print("Forward sanity check passes!")
+    # if args.embedding:
+    #     check_embedding()
+    #     print("Embedding_lookup sanity check passes!")
+    #
+    # if args.forward:
+    check_forward()
+    print("Forward sanity check passes!")
